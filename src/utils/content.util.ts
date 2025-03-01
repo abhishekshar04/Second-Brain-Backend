@@ -50,35 +50,39 @@ export async function postContent(req:Request, res: Response){
     }
 
 }
-export async function getContent(req:Request, res: Response){
+export async function getContent(req: Request, res: Response) {
     const userId = req.user._id;
-    
-    try{
-        const allContent = await Content.find({
-            userId: userId
-        });
-        
-        if(!allContent){
-            res.status(400).json({
-                message: "There is content for the user"
-            })
+
+    try {
+        const allContent = await Content.find({ userId });
+
+        if (allContent.length === 0) {  // Check if array is empty
+            res.status(200).json({
+                message: "No content found for the user",
+                content: [],
+                tags: []
+            });
+            return;
         }
+
         const tags = allContent[0].tags;
-        const tagNames = await Promise.all(tags.map(async (tag) => {    
+        const tagNames = await Promise.all(tags.map(async (tag) => {
             const tagData = await Tag.findById(tag);
             return tagData?.title;
-        }))
+        }));
+
         res.status(200).json({
             message: "The content fetched successfully",
             content: allContent,
             tags: tagNames
-        })
-    }catch(err){
-        res.status(500).json({
-            message: "Internal Server Error"
-        })
+        });
+        return;
+
+    } catch (err) {
+        res.status(500).json({ message: "Internal Server Error" });
     }
 }
+
 export async function deleteContent(req:Request, res: Response){
     const content_id = req.body.id;
 
