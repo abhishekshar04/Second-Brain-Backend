@@ -68,13 +68,13 @@ export async function getContent(req: Request, res: Response) {
         const tags = allContent[0].tags;
         const tagNames = await Promise.all(tags.map(async (tag) => {
             const tagData = await Tag.findById(tag);
-            return tagData?.title;
+            return tagData;
         }));
 
         res.status(200).json({
             message: "The content fetched successfully",
             content: allContent,
-            tags: tagNames
+            tags: tagNames,
         });
         return;
 
